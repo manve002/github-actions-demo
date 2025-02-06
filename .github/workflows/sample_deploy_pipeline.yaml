@@ -1,13 +1,12 @@
-#########################################################################################
-# This is a sample deploy pipeline to deploy various artifacts to target environments
-#########################################################################################
+#################################################################################################
+# This is a sample deploy pipeline to enable approval process for deployments with multiple jobs
+#################################################################################################
 
 name: My Deploy Pipeline with Approval
 
 on:
   workflow_dispatch:
     inputs:
-
       # Providing options for various target deployment environments
       deploy_environment:
         description: "Environment to deploy"
@@ -20,7 +19,7 @@ on:
           - UAT
           - PROD
 
-      # Optionally include other user inputs if needed
+      # Optionally add other user inputs here if needed
 
 # setting run name to know the deployment environment in the workflows history
 # optionally can extend this to include version of the code deployed, release name etc.
@@ -28,30 +27,35 @@ run-name: '${{ github.event.inputs.deploy_environment }}'
 
 jobs:
   pre_check:
+    # Include any pre checks if needed
+    # Approval is generated in this job and cascaded to subsequent jobs
     name: Pre Checks
     runs-on: ubuntu-latest
+    # approval generated only for Controlled environments
     environment: |-
       ${{
         inputs.deploy_environment == 'DEV' && 'DEV'
         || inputs.deploy_environment == 'TEST' && 'CONTROLLED'
         || inputs.deploy_environment == 'UAT' && 'CONTROLLED'
         || inputs.deploy_environment == 'PROD' && 'CONTROLLED'
-      }}
-  
+      }}      
+      
     steps:
       - name: Deployment start timing
         id: deploy_start
         run: |
           echo "deploy_start_time=$(date +"%Y-%m-%d %H:%M:%S")"
-
+        ## add additional code here
+        
   component1_initialize:
     needs: pre_check
     name: Initialize Component 1
     runs-on: ubuntu-latest
     environment: ${{ inputs.deploy_environment }}
     steps:
-      - name: Step1
+      - name: init
         run: echo "initialization running"
+        ## add additional code here
 
   deploy_component1:
     needs: component1_initialize
@@ -59,8 +63,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.deploy_environment }}
     steps:
-      - name: Step2
+      - name: deploy
         run: echo "deploying component1"
+        ## add additional code here
 
   component2_initialize:
     needs: pre_check
@@ -68,8 +73,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.deploy_environment }}
     steps:
-      - name: Step1
+      - name: init
         run: echo "initialization running"
+        ## add additional code here
 
   deploy_component2:
     needs: component2_initialize
@@ -77,10 +83,14 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.deploy_environment }}
     steps:
-      - name: Step2
+      - name: deploy
         run: echo "deploying component2"
+        ## add additional code here
 
   post_deploy_checks:
+    # include any post deployment checks here
+    # nicely formatted email notifications can be setup to detail the execution of individual jobs
+    # github job status variables can be used for this purpose
     if: ${{ always() }}
     needs: [pre_check, component1_initialize, deploy_component1, component2_initialize, deploy_component2]
     name: Post Checks
@@ -88,3 +98,4 @@ jobs:
     steps:
       - name: Send Notification
         run: echo "sending email"
+        ## add additional code here
