@@ -9,7 +9,7 @@ on:
     inputs:
 
       # Providing options for various target deployment environments
-      deploy_environments:
+      deploy_environment:
         description: "Environment to deploy"
         required: true
         type: choice
