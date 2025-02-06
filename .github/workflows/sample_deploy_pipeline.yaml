@@ -46,40 +46,45 @@ jobs:
 
   component1_initialize:
     needs: pre_check
-    name: initialize component1
+    name: Initialize Component 1
     runs-on: linux-x64-small
     environment: ${{ inputs.deploy_environment }}
     steps:
-      - name: step1
+      - name: Step1
         run: echo "initialization running"
 
   deploy_component1:
     needs: pre_check
-    name: deploy_component1
+    name: Deploy Component 1
     runs-on: linux-x64-small
     environment: ${{ inputs.deploy_environment }}
     steps:
-      - name: step2
+      - name: Step2
         run: echo "deploying component1"
 
   component2_initialize:
     needs: pre_check
-    name: initialize component2
+    name: Initialize component 2
     runs-on: linux-x64-small
     environment: ${{ inputs.deploy_environment }}
     steps:
-      - name: step1
+      - name: Step1
         run: echo "initialization running"
 
   deploy_component2:
     needs: pre_check
-    name: deploy_component2
+    name: Deploy Component 2
     runs-on: linux-x64-small
     environment: ${{ inputs.deploy_environment }}
     steps:
-      - name: step2
+      - name: Step2
         run: echo "deploying component2"
 
   post_deploy_checks:
-    if: {{ always }}
+    if: ${{ always() }}
     needs: [pre_check, component1_initialize, deploy_component1, component2_initialize, deploy_component2]
+    name: Post Checks
+    runs-on: linux-x64-small
+    steps:
+      - name: Send Notification
+        run: echo "sending email"
