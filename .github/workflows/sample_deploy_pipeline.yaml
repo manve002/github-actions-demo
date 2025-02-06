@@ -1,0 +1,85 @@
+#########################################################################################
+# This is a sample deploy pipeline to deploy various artifacts to target environments
+#########################################################################################
+
+name: My Deploy Pipeline with Approval
+
+on:
+  workflow_dispatch:
+    inputs:
+
+      # Providing options for various target deployment environments
+      deploy_environments:
+        description: "Environment to deploy"
+        required: true
+        type: choice
+        default: DEV
+        options:
+          - DEV
+          - TEST
+          - UAT
+          - PROD
+
+      # Optionally include other user inputs if needed
+
+# setting run name to know the deployment environment in the workflows history
+# optionally can extend this to include version of the code deployed, release name etc.
+run-name: '${{ github.event.inputs.deploy_environment }}'
+
+jobs:
+  pre_check:
+    name: Pre Checks
+    runs-on: linux-x64-small
+    environment: |-
+      ${{
+        inputs.deploy_environment == 'DEV' && 'DEV'
+        || inputs.deploy_environment == 'TEST' && 'CONTROLLED'
+        || inputs.deploy_environment == 'UAT' && 'CONTROLLED'
+        || inputs.deploy_environment == 'PROD' && 'CONTROLLED'
+      }}
+  
+    steps:
+      - name: Deployment start timing
+        id: deploy_start
+        run: |
+          echo "deploy_start_time=$(date +"%Y-%m-%d %H:%M:%S")"
+
+  component1_initialize:
+    needs: pre_check
+    name: initialize component1
+    runs-on: linux-x64-small
+    environment: ${{ inputs.deploy_environment }}
+    steps:
+      - name: step1
+        run: echo "initialization running"
+
+  deploy_component1:
+    needs: pre_check
+    name: deploy_component1
+    runs-on: linux-x64-small
+    environment: ${{ inputs.deploy_environment }}
+    steps:
+      - name: step2
+        run: echo "deploying component1"
+
+  component2_initialize:
+    needs: pre_check
+    name: initialize component2
+    runs-on: linux-x64-small
+    environment: ${{ inputs.deploy_environment }}
+    steps:
+      - name: step1
+        run: echo "initialization running"
+
+  deploy_component2:
+    needs: pre_check
+    name: deploy_component2
+    runs-on: linux-x64-small
+    environment: ${{ inputs.deploy_environment }}
+    steps:
+      - name: step2
+        run: echo "deploying component2"
+
+  post_deploy_checks:
+    if: {{ always }}
+    needs: [pre_check, component1_initialize, deploy_component1, component2_initialize, deploy_component2]
