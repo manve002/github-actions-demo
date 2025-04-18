@@ -17,7 +17,7 @@ on:
 
 # setting run name to know the deployment environment in the workflows history
 # optionally can extend this to include version of the code deployed, release name etc.
-run-name: 'Tenant Setup for Project - ${{ github.event.inputs.project_code }}'
+run-name: 'DE Tenant Setup for Project - ${{ github.event.inputs.project_code }}'
 
 jobs:
   setup_database_tenant:
