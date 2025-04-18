@@ -1,0 +1,67 @@
+#################################################################################################
+# This is a sample CI/CD pipeline to provision a multi-tenant environment for Data Scientists
+#################################################################################################
+
+name: Data Science Tenant Setup
+
+on:
+  workflow_dispatch:
+    inputs:
+      # Project code for mapping the cost center to all resources provisioned
+      project_code:
+        description: "Project Code"
+        required: true
+        type: string
+      
+      # Optionally add other user inputs here if needed
+
+# setting run name to know the deployment environment in the workflows history
+# optionally can extend this to include version of the code deployed, release name etc.
+run-name: 'Tenant Setup for Project - ${{ github.event.inputs.project_code }}'
+
+jobs:
+  setup_database_tenant:
+    # setup isolated project specific environment (Databricks, Snowflake, Redshift etc.)
+    name: Database Tenant Setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Database
+        id: deploy_start
+        run: |
+          echo "deploy_start_time=$(date +"%Y-%m-%d %H:%M:%S")"
+       ## add additional code here
+
+  setup_orchestration_tenant:
+    # setup isolated project specific environment in tools like Airflow, Apache Nifi etc
+    needs: setup_database_tenant
+    name: Orchestration Tenant Setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Orchestration Project
+        id: deploy_start
+        run: |
+          echo "deploy_start_time=$(date +"%Y-%m-%d %H:%M:%S")"
+        ## add additional code here
+
+  setup_ds_tool_tenant:
+    # setup isolated project environment in tools like DataIku, Sagemaker etc.
+    needs: setup_orchestration_tenant
+    name: DS Tool Tenant Setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create DS Project
+        id: deploy_start
+        run: |
+          echo "deploy_start_time=$(date +"%Y-%m-%d %H:%M:%S")"
+        ## add additional code here
+
+  send_notification:
+    needs: setup_ds_tool_tenant
+    name: Send Email Notification
+    runs-on: ubuntu-latest
+    steps:
+      - name: notify
+        id: deploy_start
+        run: |
+          echo "deploy_start_time=$(date +"%Y-%m-%d %H:%M:%S")"
+        ## add additional code here
