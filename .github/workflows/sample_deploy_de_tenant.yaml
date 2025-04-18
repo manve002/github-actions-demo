@@ -2,7 +2,7 @@
 # This is a sample deploy pipeline to enable approval process for deployments with multiple jobs
 #################################################################################################
 
-name: My Database Setup pipeline
+name: Data Engineering Tenant Setup
 
 on:
   workflow_dispatch:
