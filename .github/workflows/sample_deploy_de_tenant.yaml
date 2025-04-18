@@ -17,7 +17,7 @@ on:
 
 # setting run name to know the deployment environment in the workflows history
 # optionally can extend this to include version of the code deployed, release name etc.
-run-name: '${{ github.event.inputs.project_code }} - ${{ github.event.inputs.user_persona }}'
+run-name: 'Tenant Setup for Project - ${{ github.event.inputs.project_code }}'
 
 jobs:
   setup_database_tenant:
@@ -31,6 +31,7 @@ jobs:
        ## add additional code here
 
   setup_orchestration_tenant:
+    needs: setup_database_tenant
     name: Orchestration Tenant Setup
     runs-on: ubuntu-latest
     steps:
@@ -41,6 +42,7 @@ jobs:
         ## add additional code here
 
   setup_etl_tool_tenant:
+    needs: setup_orchestration_tenant
     name: ETL Tool Tenant Setup
     runs-on: ubuntu-latest
     steps:
